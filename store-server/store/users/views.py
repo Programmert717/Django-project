@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import auth
 from users.models import User
@@ -17,23 +18,23 @@ def login(request):
                 auth.login(request, user)
                 return HttpResponseRedirect('/')
     else:
-        form = UserLoginForm()
+        form = UserLoginForm(request.POST)
     context = {'form': form}
     return render(request, 'users/login.html', context)
 
 
 def registration(request):
     if request.method == 'POST':
-        form = UserRegistrationForm(data=request.POST)
+        form = UserRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('users:login'))
-        else:
-            form = UserRegistrationForm()
+    else:
+        form = UserRegistrationForm()
     context = {'form': form}
     return render(request, 'users/registration.html', context)
 
-
+@login_required
 def profile(request):
     form = UserProfileForm(instance=request.user)
     context = {'title': 'Store - Профиль', form: form}
